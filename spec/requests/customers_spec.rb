@@ -2,12 +2,14 @@ require 'rails_helper'
 
 RSpec.describe 'Customers API', type: :request do
 
-  let!(:customers) { create_list(:customer, 10) }
+  let(:user) { create(:user) }
+  let!(:customers) { create_list(:customer, 10, user_id: user.id) }
   let(:customer_id) { customers.first.id }
+  let(:headers) { valid_headers }
 
   # Test suite for GET /customers
   describe 'GET /customers' do
-    before { get '/customers' }
+    before { get '/customers', params: {}, headers: headers }
 
     it 'returns customers' do
       expect(json).not_to be_empty
@@ -21,7 +23,7 @@ RSpec.describe 'Customers API', type: :request do
 
   # Test suite for GET /customers/:id
   describe 'GET /customers/:id' do
-    before { get "/customers/#{customer_id}" }
+    before { get "/customers/#{customer_id}", params: {}, headers: headers }
 
     context "when the record exists" do
       it "returns the customer" do
@@ -49,10 +51,10 @@ RSpec.describe 'Customers API', type: :request do
 
   # Test suite for POST /customers
   describe 'POST /customers' do
-    let(:valid_attrs) { { name: "lyz", wechat: "wxi3442" } }
+    let(:valid_attrs) { { name: "lyz", wechat: "wxi3442" }.to_json }
 
     context 'when the request is valid' do
-      before { post "/customers", params: valid_attrs}
+      before { post "/customers", params: valid_attrs, headers: headers }
 
       it "creates a customer" do
         expect(json['name']).to eq("lyz")
@@ -64,7 +66,7 @@ RSpec.describe 'Customers API', type: :request do
     end
 
     context "when the request is invalid" do
-      before { post "/customers", params: { name: "lyz" } }
+      before { post "/customers", params: { name: "lyz" }.to_json, headers: headers }
 
       it 'returns status code 422' do
         expect(response).to have_http_status(422)
@@ -78,10 +80,10 @@ RSpec.describe 'Customers API', type: :request do
 
   # Test suite for PUT /customers/:id
   describe 'PUT /customers/:id' do
-    let(:valid_attrs) { { name: 'lyz001' } }
+    let(:valid_attrs) { { name: 'lyz001' }.to_json }
 
     context 'when the record exists' do
-      before { put "/customers/#{customer_id}", params: valid_attrs }
+      before { put "/customers/#{customer_id}", params: valid_attrs, headers: headers }
 
       it 'updates the record' do
         expect(response.body).to be_empty
@@ -95,7 +97,7 @@ RSpec.describe 'Customers API', type: :request do
 
   # Test suite for DELETE /customers/:id
   describe 'DELETE /customers/:id' do
-    before { delete "/customers/#{customer_id}" }
+    before { delete "/customers/#{customer_id}", params: {}, headers: headers }
 
     it 'returns status code 204' do
       expect(response).to have_http_status(204)

@@ -3,7 +3,7 @@ class CustomersController < ApplicationController
   before_action :set_customer, only: [:show, :update, :destroy]
 
   def index
-    @customers = Customer.all
+    @customers = current_user.customers
     json_response(@customers)
   end
 
@@ -12,7 +12,7 @@ class CustomersController < ApplicationController
   end
 
   def create
-    @customer = Customer.create!(customer_params)
+    @customer = current_user.customers.create!(customer_params)
     json_response(@customer, :created)
   end
 

@@ -1,14 +1,16 @@
 require 'rails_helper'
 
 RSpec.describe 'Addresses API' do
-  let!(:customer) { create(:customer) }
+  let(:user) { create(:user) }
+  let!(:customer) { create(:customer, user_id: user.id) }
   let!(:addresses) { create_list(:address, 10, customer_id: customer.id)}
   let(:customer_id) { customer.id }
   let(:id) { addresses.first.id }
+  let(:headers) { valid_headers }
 
   # Test suite for GET /customers/:customer_id/addresses
   describe 'GET /customers/:customer_id/addresses' do
-    before { get "/customers/#{customer_id}/addresses" }
+    before { get "/customers/#{customer_id}/addresses", params: {}, headers: headers }
 
     context 'when customer exists' do
       it 'returns status code 200' do
@@ -35,7 +37,7 @@ RSpec.describe 'Addresses API' do
 
   # Test suite for GET /customers/:customer_id/addresses/:id
   describe 'GET /customers/:customer_id/addresses/:id' do
-    before { get "/customers/#{customer_id}/addresses/#{id}"}
+    before { get "/customers/#{customer_id}/addresses/#{id}", params: {}, headers: headers }
 
     context 'when customer address exists' do
       it 'returns status code 200' do
@@ -62,10 +64,10 @@ RSpec.describe 'Addresses API' do
 
   # Test suite for POST /customers/:customer_id/addresses
   describe 'POST /customers/:customer_id/addresses' do
-    let(:valid_attrs) { { receiver: 'lj001', tel: '13454364387', addr: 'Beijing' } }
+    let(:valid_attrs) { { receiver: 'lj001', tel: '13454364387', addr: 'Beijing' }.to_json }
 
     context 'when request attributes are valid' do
-      before { post "/customers/#{customer_id}/addresses", params: valid_attrs }
+      before { post "/customers/#{customer_id}/addresses", params: valid_attrs, headers: headers }
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
@@ -73,7 +75,7 @@ RSpec.describe 'Addresses API' do
     end
 
     context 'when the request attribute is invalid' do
-      before { post "/customers/#{customer_id}/addresses", params: {} }
+      before { post "/customers/#{customer_id}/addresses", params: {}, headers: headers }
 
       it 'returns status code 422' do
         expect(response).to have_http_status(422)
@@ -87,9 +89,9 @@ RSpec.describe 'Addresses API' do
 
   # Test suite for PUT /customers/:cutomer_id/addresses/:id
   describe 'PUT /customers/:customer_id/addresses/:id' do
-    let(:valid_attrs) { { receiver: 'lj001', tel: '13436754328', addr: 'Wuhan' } }
+    let(:valid_attrs) { { receiver: 'lj001', tel: '13436754328', addr: 'Wuhan' }.to_json }
 
-    before { put "/customers/#{customer_id}/addresses/#{id}", params: valid_attrs }
+    before { put "/customers/#{customer_id}/addresses/#{id}", params: valid_attrs, headers: headers }
 
     context 'when address exists' do
       it 'returns status code 204' do
@@ -117,7 +119,7 @@ RSpec.describe 'Addresses API' do
 
   # Test suite for DELETE /customers/:customer_id/addresses/:id
   describe 'DELETE /customers/:customer_id/addresses/:id' do
-    before { delete "/customers/#{customer_id}/addresses/#{id}" }
+    before { delete "/customers/#{customer_id}/addresses/#{id}", params: {}, headers: headers }
 
     it 'returns status code 204' do
       expect(response).to have_http_status(204)
